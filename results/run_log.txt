@@ -1,0 +1,68 @@
+============================================================
+Step 1: Reading all data
+============================================================
+  labeledTrainData: 25000
+  unlabeledTrainData: 49998
+  testData: 25000
+
+============================================================
+Step 2: Text cleaning
+============================================================
+  Train cleaned: 25000 (36.4s)
+  Unlabeled cleaned: 49998 (72.2s)
+  Test cleaned: 25000 (26.2s)
+  Saving cleaned data...
+  Cleaned data saved!
+
+============================================================
+Step 3: Training Word2Vec
+============================================================
+  Total sentences: 74998
+  Vocab: 16343, Dim: 300
+  W2V training: ~300s
+
+============================================================
+Step 3: Embedding + LR + Predict
+============================================================
+Loading cleaned data...
+  Train: 25000, Test: 25000
+Loading labels and IDs from TSV...
+  y_train: (25000,), test_ids: (25000,)
+Loading Word2Vec model...
+  Vocab: 16343, Dim: 300
+Generating train Embedding...
+  [Train] 5000/25000 (2.8s)
+  [Train] 10000/25000 (5.5s)
+  [Train] 15000/25000 (8.3s)
+  [Train] 20000/25000 (11.0s)
+  [Train] 25000/25000 (13.6s)
+  X_train: (25000, 300)
+Generating test Embedding...
+  [Test] 5000/25000 (2.6s)
+  [Test] 10000/25000 (5.3s)
+  [Test] 15000/25000 (8.2s)
+  [Test] 20000/25000 (10.8s)
+  [Test] 25000/25000 (13.4s)
+  X_test: (25000, 300)
+Training Logistic Regression...
+  LR training: 0.3s
+  Train acc: 0.8899
+  Train pred: 0=12365, 1=12635
+Predicting test set...
+  Pred dist: 0=12631, 1=12369
+Generating Word2Vec_Embedding_Logistic.csv...
+Verifying...
+  Rows: 25000
+  Cols: ['id', 'sentiment']
+  Dist: 0=12631, 1=12369
+  Size: 257793 bytes
+  First 5:
+         id  sentiment
+0  12311_10          1
+1    8348_2          0
+2    5828_4          1
+3    7186_2          0
+4   12128_7          1
+
+Step 3 DONE! Total: 29.2s
+Output: Word2Vec_Embedding_Logistic.csv (25000 rows)
