@@ -1,68 +1,122 @@
 ============================================================
-Step 1: Reading all data
+Final Fusion Pipeline: NBSVM + TF-IDF LR + OOF Stack
 ============================================================
-  labeledTrainData: 25000
-  unlabeledTrainData: 49998
-  testData: 25000
 
-============================================================
-Step 2: Text cleaning
-============================================================
-  Train cleaned: 25000 (36.4s)
-  Unlabeled cleaned: 49998 (72.2s)
-  Test cleaned: 25000 (26.2s)
-  Saving cleaned data...
-  Cleaned data saved!
-
-============================================================
-Step 3: Training Word2Vec
-============================================================
-  Total sentences: 74998
-  Vocab: 16343, Dim: 300
-  W2V training: ~300s
-
-============================================================
-Step 3: Embedding + LR + Predict
-============================================================
-Loading cleaned data...
+[Step 1] Reading data
   Train: 25000, Test: 25000
-Loading labels and IDs from TSV...
-  y_train: (25000,), test_ids: (25000,)
-Loading Word2Vec model...
-  Vocab: 16343, Dim: 300
-Generating train Embedding...
-  [Train] 5000/25000 (2.8s)
-  [Train] 10000/25000 (5.5s)
-  [Train] 15000/25000 (8.3s)
-  [Train] 20000/25000 (11.0s)
-  [Train] 25000/25000 (13.6s)
-  X_train: (25000, 300)
-Generating test Embedding...
-  [Test] 5000/25000 (2.6s)
-  [Test] 10000/25000 (5.3s)
-  [Test] 15000/25000 (8.2s)
-  [Test] 20000/25000 (10.8s)
-  [Test] 25000/25000 (13.4s)
-  X_test: (25000, 300)
-Training Logistic Regression...
-  LR training: 0.3s
-  Train acc: 0.8899
-  Train pred: 0=12365, 1=12635
-Predicting test set...
-  Pred dist: 0=12631, 1=12369
-Generating Word2Vec_Embedding_Logistic.csv...
-Verifying...
-  Rows: 25000
-  Cols: ['id', 'sentiment']
-  Dist: 0=12631, 1=12369
-  Size: 257793 bytes
-  First 5:
-         id  sentiment
-0  12311_10          1
-1    8348_2          0
-2    5828_4          1
-3    7186_2          0
-4   12128_7          1
 
-Step 3 DONE! Total: 29.2s
-Output: Word2Vec_Embedding_Logistic.csv (25000 rows)
+[Step 2] Text cleaning
+  Done (45.8s)
+
+[Step 3] Feature extraction
+  Count word 1-3 grams...
+    (25000, 300000) (123.1s)
+  Count word 1-2 grams...
+    (25000, 300000) (56.3s)
+  TF-IDF word 1-2 grams...
+    (25000, 300000) (59.2s)
+  TF-IDF word 1-3 grams...
+    (25000, 300000) (124.6s)
+
+[Step 4] 5-Fold OOF Training
+
+  NBSVM_cnt_w123_C1
+    Fold 1: 0.9340
+    Fold 2: 0.9388
+    Fold 3: 0.9452
+    Fold 4: 0.9408
+    Fold 5: 0.9372
+    Mean CV: 0.9392 (30.5s)
+
+  NBSVM_cnt_w123_C5
+    Fold 1: 0.9344
+    Fold 2: 0.9382
+    Fold 3: 0.9460
+    Fold 4: 0.9400
+    Fold 5: 0.9406
+    Mean CV: 0.9398 (25.1s)
+
+  NBSVM_cnt_w123_C10
+    Fold 1: 0.9350
+    Fold 2: 0.9388
+    Fold 3: 0.9452
+    Fold 4: 0.9396
+    Fold 5: 0.9410
+    Mean CV: 0.9399 (23.7s)
+
+  NBSVM_cnt_w12_C5
+    Fold 1: 0.9330
+    Fold 2: 0.9358
+    Fold 3: 0.9388
+    Fold 4: 0.9354
+    Fold 5: 0.9348
+    Mean CV: 0.9356 (27.2s)
+
+  NBSVM_cnt_w12_C10
+    Fold 1: 0.9320
+    Fold 2: 0.9364
+    Fold 3: 0.9384
+    Fold 4: 0.9338
+    Fold 5: 0.9356
+    Mean CV: 0.9352 (25.4s)
+
+  LR_tfidf_w12_C5
+    Fold 1: 0.8998
+    Fold 2: 0.9026
+    Fold 3: 0.9072
+    Fold 4: 0.9032
+    Fold 5: 0.9126
+    Mean CV: 0.9051 (16.2s)
+
+  LR_tfidf_w12_C10
+    Fold 1: 0.9014
+    Fold 2: 0.9054
+    Fold 3: 0.9100
+    Fold 4: 0.9048
+    Fold 5: 0.9138
+    Mean CV: 0.9071 (17.9s)
+
+  LR_tfidf_w123_C5
+    Fold 1: 0.9042
+    Fold 2: 0.9052
+    Fold 3: 0.9108
+    Fold 4: 0.9044
+    Fold 5: 0.9136
+    Mean CV: 0.9076 (30.8s)
+
+  LR_tfidf_w123_C10
+    Fold 1: 0.9002
+    Fold 2: 0.9062
+    Fold 3: 0.9110
+    Fold 4: 0.9064
+    Fold 5: 0.9142
+    Mean CV: 0.9076 (24.5s)
+
+[Step 5] OOF Blending
+  OOF matrix: (25000, 9)
+  Blend avg OOF acc: 0.9361
+  Blend weighted OOF acc: 0.9361
+  Meta-learner OOF acc: 0.9394
+
+============================================================
+[Step 6] Summary
+============================================================
+  NBSVM_cnt_w123_C10: CV = 0.9399
+  NBSVM_cnt_w123_C5: CV = 0.9398
+  NBSVM_cnt_w123_C1: CV = 0.9392
+  NBSVM_cnt_w12_C5: CV = 0.9356
+  NBSVM_cnt_w12_C10: CV = 0.9352
+  LR_tfidf_w123_C5: CV = 0.9076
+  LR_tfidf_w123_C10: CV = 0.9076
+  LR_tfidf_w12_C10: CV = 0.9071
+  LR_tfidf_w12_C5: CV = 0.9051
+
+  Best single: NBSVM_cnt_w123_C10 (CV: 0.9399)
+  Blend avg: 0.9361
+  Blend weighted: 0.9361
+  Meta-learner: 0.9394
+
+  Output: Word2Vec_Embedding_Logistic.csv (average blend)
+  Rows: 25000, Dist: 0=12607, 1=12393
+
+Total time: 632.8s
